@@ -1,0 +1,139 @@
+{
+  "name": "vscode-gas-fakes",
+  "displayName": "GAS Fakes",
+  "description": "Run Google Apps Script projects locally with @mcpher/gas-fakes — no clasp run, no deploy.",
+  "version": "0.1.0",
+  "publisher": "tomhoh",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Testing",
+    "Other"
+  ],
+  "keywords": [
+    "google-apps-script",
+    "gas",
+    "clasp",
+    "gas-fakes",
+    "apps script"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tomhoh/vscode-gas-fakes"
+  },
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/.clasp.json"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "gasFakes.init",
+        "title": "GAS Fakes: Init in This Project"
+      },
+      {
+        "command": "gasFakes.signIn",
+        "title": "GAS Fakes: Sign In (ADC)"
+      },
+      {
+        "command": "gasFakes.runFunction",
+        "title": "GAS Fakes: Run Function",
+        "icon": "$(play)"
+      },
+      {
+        "command": "gasFakes.serveWebApp",
+        "title": "GAS Fakes: Serve Web App",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "gasFakes.stopWebApp",
+        "title": "GAS Fakes: Stop Web App",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "gasFakes.debugFunction",
+        "title": "GAS Fakes: Debug Function",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "gasFakes.runFunctionByName",
+        "title": "GAS Fakes: Run Function (by name)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "gasFakes.runFunction",
+          "when": "gasFakes.inProject",
+          "group": "navigation@1"
+        },
+        {
+          "command": "gasFakes.debugFunction",
+          "when": "gasFakes.inProject",
+          "group": "navigation@2"
+        },
+        {
+          "command": "gasFakes.serveWebApp",
+          "when": "gasFakes.inProject",
+          "group": "navigation@3"
+        },
+        {
+          "command": "gasFakes.stopWebApp",
+          "when": "gasFakes.inProject && gasFakes.serving",
+          "group": "navigation@4"
+        }
+      ]
+    },
+    "languages": [
+      {
+        "id": "javascript",
+        "extensions": [".gs"],
+        "aliases": ["Apps Script", "gas"]
+      }
+    ],
+    "configuration": {
+      "title": "GAS Fakes",
+      "properties": {
+        "gasFakes.nodeBinary": {
+          "type": "string",
+          "default": "node",
+          "description": "Path to the Node.js binary used to run the gas-fakes runner."
+        },
+        "gasFakes.entryFunctionPattern": {
+          "type": "string",
+          "default": "^function\\s+([a-zA-Z_$][\\w$]*)\\s*\\(\\s*\\)\\s*\\{",
+          "description": "Regex (multi-line, global) matching zero-argument top-level functions. Capture group 1 is the function name."
+        },
+        "gasFakes.sandboxIframe": {
+          "type": "boolean",
+          "default": true,
+          "description": "Serve the web app inside a sandboxed iframe and bridge google.script.run via postMessage. Mirrors how Apps Script isolates the user's HTML in production."
+        },
+        "gasFakes.codeLens.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show ▶ Run / 🐞 Debug CodeLens above zero-argument top-level functions in clasp projects."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/busboy": "^1.5.4",
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.24.0",
+    "busboy": "^1.6.0",
+    "esbuild": "^0.20.2",
+    "typescript": "^5.4.5"
+  }
+}

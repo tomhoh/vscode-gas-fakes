@@ -1,0 +1,20 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- rounded slate background -->
+  <rect width="128" height="128" rx="22" fill="#1e293b"/>
+
+  <!-- subtle sheet grid -->
+  <g stroke="#334155" stroke-width="2" stroke-linecap="round">
+    <line x1="20" y1="40" x2="108" y2="40"/>
+    <line x1="20" y1="64" x2="108" y2="64"/>
+    <line x1="20" y1="88" x2="108" y2="88"/>
+    <line x1="44" y1="32" x2="44" y2="96"/>
+    <line x1="84" y1="32" x2="84" y2="96"/>
+  </g>
+
+  <!-- play triangle (run) -->
+  <path d="M 50 40 L 50 88 L 92 64 Z" fill="#10b981"/>
+
+  <!-- ~ accent suggesting "fakes" / approximation -->
+  <path d="M 78 30 q 4 -6 8 0 q 4 6 8 0"
+        fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+</svg>

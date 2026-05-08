@@ -2,8 +2,8 @@
   "name": "vscode-gas-fakes",
   "displayName": "GAS Fakes",
   "description": "Run Google Apps Script projects locally with @mcpher/gas-fakes — no clasp run, no deploy.",
-  "version": "0.1.0",
-  "publisher": "tomhoh",
+  "version": "0.2.0",
+  "publisher": "TomHoh",
   "license": "MIT",
   "icon": "media/icon.png",
   "engines": {

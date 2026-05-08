@@ -1,5 +1,6 @@
 .vscode/**
 .vscode-test/**
+.claude/**
 src/**
 out/**
 runner/**
@@ -10,4 +11,5 @@ esbuild.mjs
 node_modules/**
 **/*.map
 **/*.ts
+**/*.vsix
 .github/**

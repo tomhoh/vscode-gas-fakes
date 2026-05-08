@@ -6,6 +6,8 @@ This extension wires [`@mcpher/gas-fakes`](https://www.npmjs.com/package/@mcpher
 
 Built for the workflow described in [Gas-fakes, GitHub Actions, and WIF](https://ramblings.mcpher.com/gas-fakes-github-actions-wif/).
 
+![Editor title-bar buttons (Run · Debug · Serve · Stop) and CodeLens above each runnable function in a clasp project.](media/preview.png)
+
 ---
 
 ## Features

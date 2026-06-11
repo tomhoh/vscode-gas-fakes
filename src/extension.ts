@@ -5,6 +5,7 @@ import { registerRunCommand } from './commands/runFunction';
 import { registerServeCommand } from './commands/serveWebApp';
 import { registerDebugCommand } from './commands/debugFunction';
 import { registerCodeLens } from './codeLens';
+import { registerIntellisense } from './intellisense';
 import { initStatusBar } from './statusBar';
 import { initContextKeys } from './context';
 import { output } from './output';
@@ -20,6 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerServeCommand(context),
     registerDebugCommand(context),
     registerCodeLens(context),
+    registerIntellisense(context),
     initStatusBar(context),
   );
 }

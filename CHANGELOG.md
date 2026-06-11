@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0
+
+### Added
+- **Apps Script IntelliSense** (integrated from [gas-intellisense](https://github.com/apenara/gas-intellisense), MIT) —
+  - **Bundled type definitions** — `@types/google-apps-script` v2.0.7 ships inside the extension. **GAS Fakes: Setup IntelliSense** (or the one-time prompt when a `.gs` file opens) copies them into the project's `node_modules/@types` and writes a `jsconfig.json`, so tsserver autocompletes `SpreadsheetApp.`, `GmailApp.`, and the other 30+ services with no npm setup. Works offline.
+  - **28 code snippets** — `onOpen`, `onEdit`, `doGet`, `doPost`, `getValues`, `appendRow`, `sendEmail`, `tryCatch`, and friends. Available in any `.gs`/`.js` file.
+  - **Hover docs** — hover over GAS services and common methods to see a description, an example, and a link to the official Google reference. Method names (e.g. `getRange`) only match after a dot, so unrelated identifiers don't light up. Toggleable via `gasFakes.hoverDocs.enabled`.
+- **Init** now also configures IntelliSense (jsconfig + bundled types) in the same pass.
+- Extension also activates in workspaces containing `.gs` files (not just clasp projects), so IntelliSense works before you've set up clasp.
+
 ## 0.2.0
 
 ### Added

@@ -2,7 +2,7 @@
   "name": "vscode-gas-fakes",
   "displayName": "GAS Fakes",
   "description": "Run Google Apps Script projects locally with @mcpher/gas-fakes — no clasp run, no deploy.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "TomHoh",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -26,7 +26,8 @@
   },
   "main": "./dist/extension.js",
   "activationEvents": [
-    "workspaceContains:**/.clasp.json"
+    "workspaceContains:**/.clasp.json",
+    "workspaceContains:**/*.gs"
   ],
   "contributes": {
     "commands": [
@@ -61,6 +62,10 @@
       {
         "command": "gasFakes.runFunctionByName",
         "title": "GAS Fakes: Run Function (by name)"
+      },
+      {
+        "command": "gasFakes.setupIntellisense",
+        "title": "GAS Fakes: Setup IntelliSense"
       }
     ],
     "menus": {
@@ -94,6 +99,12 @@
         "aliases": ["Apps Script", "gas"]
       }
     ],
+    "snippets": [
+      {
+        "language": "javascript",
+        "path": "./snippets/gas-snippets.json"
+      }
+    ],
     "configuration": {
       "title": "GAS Fakes",
       "properties": {
@@ -116,6 +127,11 @@
           "type": "boolean",
           "default": true,
           "description": "Show ▶ Run / 🐞 Debug CodeLens above zero-argument top-level functions in clasp projects."
+        },
+        "gasFakes.hoverDocs.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show hover documentation (with links to the Google reference) for Apps Script services and common methods in .gs files."
         }
       }
     }

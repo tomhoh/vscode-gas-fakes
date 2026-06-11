@@ -18,6 +18,9 @@ Built for the workflow described in [Gas-fakes, GitHub Actions, and WIF](https:/
 - **CodeLens** above each runnable function — `▶ Run | 🐞 Debug` without the command palette.
 - **Editor title bar buttons** when you're in a clasp project: `▶ 🐞 🌐 ⏹` for fast access.
 - **`.gs` files** registered as JavaScript — syntax highlighting, IntelliSense, the works.
+- **Full GAS IntelliSense** — bundled `@types/google-apps-script` definitions give you autocompletion for `SpreadsheetApp`, `GmailApp`, `DriveApp`, and 30+ other services. One-time setup writes a `jsconfig.json` and copies the types into your project — no npm, works offline.
+- **28 code snippets** — `onOpen`, `onEdit`, `doGet`, `doPost`, `getValues`, `appendRow`, `sendEmail`, `tryCatch`, and more.
+- **Hover docs** — hover a GAS service or method to see a description, example, and a link to the official Google reference.
 - **Auth helper** — reads `oauthScopes` from `appsscript.json` and your custom OAuth client from `.env`, then runs `gcloud auth application-default login` with all the right flags.
 
 ---
@@ -131,6 +134,18 @@ The editor title-bar buttons appear on any `.gs`/`.js` file in a clasp project. 
 
 ---
 
+## IntelliSense & snippets
+
+The extension bundles the `@types/google-apps-script` definitions, so autocompletion for all GAS services works without installing anything in your project.
+
+- **Setup** — the first time you open a `.gs` file you'll be offered a one-time setup; or run **GAS Fakes: Setup IntelliSense** from the palette (it also happens automatically during **Init in This Project**). Setup writes a `jsconfig.json` in the project root and copies the bundled types to `node_modules/@types/google-apps-script`. If a `jsconfig.json`/`tsconfig.json` already exists, nothing is touched.
+- **Snippets** — type a prefix like `onOpen`, `onEdit`, `doGet`, `doPost`, `getValues`, `appendRow`, `sendEmail`, or `tryCatch` in a `.gs`/`.js` file and press Tab. 28 snippets covering triggers, Sheets, Gmail, and logging.
+- **Hover docs** — hover `SpreadsheetApp`, `GmailApp`, `.getRange`, `.getValues`, etc. for a description, example, and a link to the official reference. Disable with `gasFakes.hoverDocs.enabled`.
+
+IntelliSense features (unlike Run/Debug/Serve) don't require a `.clasp.json` — the extension activates in any workspace containing `.gs` files.
+
+---
+
 ## How `Serve Web App` works
 
 The local server replicates Apps Script's runtime architecture, not just its API surface:
@@ -176,6 +191,7 @@ The local server replicates Apps Script's runtime architecture, not just its API
 | `gasFakes.entryFunctionPattern` | regex | Match for runnable zero-arg top-level functions. |
 | `gasFakes.sandboxIframe` | `true` | Serve web app inside a sandboxed iframe with postMessage bridging. Set `false` to serve the user HTML directly (less faithful to GAS but simpler). |
 | `gasFakes.codeLens.enabled` | `true` | Show ▶ Run / 🐞 Debug above functions. |
+| `gasFakes.hoverDocs.enabled` | `true` | Hover documentation for GAS services/methods with links to the Google reference. |
 
 ---
 
@@ -229,6 +245,8 @@ Most likely the spreadsheet isn't accessible to whichever account you authentica
 │   ├─ projectResolver.ts        .clasp.json discovery │
 │   ├─ functionIndexer.ts        Top-level fn parser   │
 │   ├─ codeLens.ts               ▶ Run / 🐞 Debug      │
+│   ├─ intellisense.ts           Hover docs + jsconfig │
+│   ├─ gasDocs.ts                GAS hover reference   │
 │   ├─ context.ts                Title-bar visibility  │
 │   └─ commands/                                       │
 │       ├─ init.ts                                     │

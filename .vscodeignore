@@ -11,5 +11,6 @@ esbuild.mjs
 node_modules/**
 **/*.map
 **/*.ts
+!typedefs/**/*.d.ts
 **/*.vsix
 .github/**

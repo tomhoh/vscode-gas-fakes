@@ -3,9 +3,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { resolveClaspProjectDeep, showClaspNotFoundError } from '../projectResolver';
+import { setupWorkspaceTypes } from '../intellisense';
 import { output } from '../output';
 
-export function registerInitCommand(_context: vscode.ExtensionContext): vscode.Disposable {
+export function registerInitCommand(context: vscode.ExtensionContext): vscode.Disposable {
   return vscode.commands.registerCommand('gasFakes.init', async () => {
     const proj = await resolveClaspProjectDeep();
     if (!proj) {
@@ -29,5 +30,9 @@ export function registerInitCommand(_context: vscode.ExtensionContext): vscode.D
     term.show();
     term.sendText(steps.join(' && '));
     output.appendLine(`init in ${proj.projectDir}: ${steps.join(' && ')}`);
+
+    // Also set up Apps Script IntelliSense (jsconfig + bundled GAS types).
+    // Quiet: an already-configured project shouldn't nag during init.
+    await setupWorkspaceTypes(proj.projectDir, context.extensionPath, { quiet: true });
   });
 }

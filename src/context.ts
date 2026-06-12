@@ -1,23 +1,31 @@
 import * as vscode from 'vscode';
-import { resolveClaspProject } from './projectResolver';
+import { resolveClaspProject, isProjectInitialized } from './projectResolver';
 
 const IN_PROJECT = 'gasFakes.inProject';
+const INITIALIZED = 'gasFakes.initialized';
 const SERVING = 'gasFakes.serving';
 
 let lastInProject = false;
+let lastInitialized: boolean | undefined;
 
-function refreshInProject() {
+export function refreshInProject() {
   const editor = vscode.window.activeTextEditor;
   let inProject = false;
+  let initialized = false;
   if (editor && /\.(gs|js)$/i.test(editor.document.fileName)) {
     const proj = resolveClaspProject(editor.document.uri);
     if (proj && editor.document.uri.fsPath.startsWith(proj.rootDir)) {
       inProject = true;
+      initialized = isProjectInitialized(proj.projectDir);
     }
   }
   if (inProject !== lastInProject) {
     lastInProject = inProject;
     vscode.commands.executeCommand('setContext', IN_PROJECT, inProject);
+  }
+  if (initialized !== lastInitialized) {
+    lastInitialized = initialized;
+    vscode.commands.executeCommand('setContext', INITIALIZED, initialized);
   }
 }
 

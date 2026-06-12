@@ -9,6 +9,9 @@
   - **Hover docs** — hover over GAS services and common methods to see a description, an example, and a link to the official Google reference. Method names (e.g. `getRange`) only match after a dot, so unrelated identifiers don't light up. Toggleable via `gasFakes.hoverDocs.enabled`.
 - **Init** now also configures IntelliSense (jsconfig + bundled types) in the same pass.
 - Extension also activates in workspaces containing `.gs` files (not just clasp projects), so IntelliSense works before you've set up clasp.
+- **🛠 Init title-bar button** — shows next to ▶ 🐞 🌐 only while the project isn't initialized (`@mcpher/gas-fakes` not installed), and disappears automatically once the install lands.
+- **Init pre-flight on Run/Debug/Serve** — clicking ▶ 🐞 🌐 in an uninitialized project now offers to run Init (with confirmation) instead of failing later with a module-not-found error.
+- **Init completion toast** — the extension watches for the npm install to finish and confirms when the project is ready.
 
 ## 0.2.0
 

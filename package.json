@@ -33,7 +33,8 @@
     "commands": [
       {
         "command": "gasFakes.init",
-        "title": "GAS Fakes: Init in This Project"
+        "title": "GAS Fakes: Init in This Project",
+        "icon": "$(tools)"
       },
       {
         "command": "gasFakes.signIn",
@@ -70,6 +71,11 @@
     ],
     "menus": {
       "editor/title": [
+        {
+          "command": "gasFakes.init",
+          "when": "gasFakes.inProject && !gasFakes.initialized",
+          "group": "navigation@0"
+        },
         {
           "command": "gasFakes.runFunction",
           "when": "gasFakes.inProject",

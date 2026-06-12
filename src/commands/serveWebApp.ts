@@ -6,6 +6,7 @@ import {
   listSourceFiles,
   showClaspNotFoundError,
 } from '../projectResolver';
+import { ensureInitialized } from './init';
 import { output } from '../output';
 import { setServing } from '../context';
 
@@ -24,6 +25,7 @@ export function registerServeCommand(context: vscode.ExtensionContext): vscode.D
       showClaspNotFoundError();
       return;
     }
+    if (!(await ensureInitialized(proj))) return;
     const sources = listSourceFiles(proj.rootDir);
     if (sources.length === 0) {
       vscode.window.showErrorMessage(`GAS Fakes: no .gs/.js sources in ${proj.rootDir}.`);

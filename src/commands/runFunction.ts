@@ -8,6 +8,7 @@ import {
   ClaspProject,
 } from '../projectResolver';
 import { indexFunctions } from '../functionIndexer';
+import { ensureInitialized } from './init';
 import { output } from '../output';
 
 async function gatherSources(uri?: vscode.Uri): Promise<{ proj: ClaspProject; sources: string[] } | undefined> {
@@ -16,6 +17,7 @@ async function gatherSources(uri?: vscode.Uri): Promise<{ proj: ClaspProject; so
     showClaspNotFoundError();
     return undefined;
   }
+  if (!(await ensureInitialized(proj))) return undefined;
   const sources = listSourceFiles(proj.rootDir);
   if (sources.length === 0) {
     vscode.window.showErrorMessage(`GAS Fakes: no .gs/.js sources in ${proj.rootDir}.`);

@@ -16,7 +16,8 @@ Built for the workflow described in [Gas-fakes, GitHub Actions, and WIF](https:/
 - **🐞 Debug Function** — hit breakpoints in your `.gs` files; stack traces reference real file paths, not eval'd buffers.
 - **🌐 Serve Web App** — `doGet(e)` renders into a sandboxed `<iframe>`, `google.script.run` calls bridge over postMessage, file uploads work end-to-end. Defaults match Apps Script's runtime sandbox so apps don't behave differently locally.
 - **CodeLens** above each runnable function — `▶ Run | 🐞 Debug` without the command palette.
-- **Editor title bar buttons** when you're in a clasp project: `▶ 🐞 🌐 ⏹` for fast access.
+- **Editor title bar buttons** when you're in a clasp project: `▶ 🐞 🌐 ⏹` for fast access. A `🛠 Init` button appears instead when the project hasn't been initialized yet.
+- **Guided init** — clicking ▶/🐞/🌐 in a project that isn't set up offers to initialize it first, instead of failing with a cryptic "cannot find @mcpher/gas-fakes". When the install finishes, the buttons switch over automatically.
 - **`.gs` files** registered as JavaScript — syntax highlighting, IntelliSense, the works.
 - **Full GAS IntelliSense** — bundled `@types/google-apps-script` definitions give you autocompletion for `SpreadsheetApp`, `GmailApp`, `DriveApp`, and 30+ other services. One-time setup writes a `jsconfig.json` and copies the types into your project — no npm, works offline.
 - **28 code snippets** — `onOpen`, `onEdit`, `doGet`, `doPost`, `getValues`, `appendRow`, `sendEmail`, `tryCatch`, and more.
@@ -39,10 +40,60 @@ Built for the workflow described in [Gas-fakes, GitHub Actions, and WIF](https:/
 If you already have `gcloud` set up and just want to test a script that doesn't touch Google services:
 
 1. Open your clasp project in VS Code.
-2. **Cmd+Shift+P → GAS Fakes: Init in This Project**.
+2. **Cmd+Shift+P → GAS Fakes: Init in This Project** (or click the **🛠 Init** button in the editor title bar). This opens a terminal, installs `@mcpher/gas-fakes`, then launches an **interactive setup wizard** — press **Enter** through the prompts to accept the defaults. See [Initial setup, step by step](#initial-setup-step-by-step) for what each prompt means.
 3. **Cmd+Shift+P → GAS Fakes: Run Function** → pick a function.
 
 For a script that reads/writes a Google Sheet, jump to [Authentication](#authentication-the-real-setup).
+
+---
+
+## Initial setup, step by step
+
+The first time you use GAS Fakes in a project you run **Init in This Project** once. This section walks through exactly what it does and what each prompt means, because one of the steps — `npx gas-fakes init` — is an **interactive wizard**, not a silent command.
+
+### What "Init in This Project" runs
+
+Trigger it from **Cmd+Shift+P → GAS Fakes: Init in This Project**, or click the **🛠 Init** button in the editor title bar (it only shows up when the project isn't initialized yet). The command opens a terminal in your project root and runs, in order:
+
+```bash
+npm init -y                       # only if there's no package.json yet
+npm i --cache ~/.cache/gas-fakes-npm -D @mcpher/gas-fakes
+npx gas-fakes init --auth-type adc   # ← the interactive wizard
+```
+
+In parallel it also sets up IntelliSense quietly — writes a `jsconfig.json` and copies the bundled GAS type definitions into `node_modules/@types` (skipped if you already have a `jsconfig.json`/`tsconfig.json`). It does **not** reload your window during init, so the terminal install isn't interrupted.
+
+> **Before you init, add your scopes to `appsscript.json`** (see step 1 under [Per-project setup](#per-project-setup)). The wizard reads `oauthScopes` from your manifest and pre-fills `EXTRA_SCOPES` for you — if the manifest already lists Sheets/Drive, you won't have to type the scopes by hand.
+
+### The `gas-fakes init` wizard
+
+This is the part that catches people out: after the npm install completes, the terminal launches a **prompts-based wizard** that asks a series of questions and writes a `.env` file from your answers. **It waits for input — it will not finish on its own.** Most prompts have a sensible default shown after the `›`; press **Enter** to accept each one. The questions, in order, for the default Google backend:
+
+| Prompt | Default | What to do |
+|---|---|---|
+| **Path to appsscript.json** | `./appsscript.json` | Enter to accept, unless your manifest lives elsewhere. |
+| **Path to .clasp.json** | `./.clasp.json` | Enter to accept. |
+| **Document ID** (container-bound scripts) | *(empty)* | Enter to skip unless your script is bound to a specific Sheet/Doc. |
+| **Cache storage path** | `/tmp/gas-fakes/cache` | Enter to accept — where `CacheService` data lands locally. |
+| **Properties storage path** | `/tmp/gas-fakes/properties` | Enter to accept — where `PropertiesService` data lands. |
+| **Port for local web server** | `8080` | Enter to accept (the Serve command picks a free port at runtime anyway). |
+| **Togas: Target directory / Script ID / patterns** | `../testongas`, etc. | Enter through these — only relevant if you push local tests back up to a GAS project. |
+| **Use Cloud SQL Auth Proxy?** | No | Enter to skip unless you use JDBC against Cloud SQL. |
+| **Enter your GCP Project ID** | *(empty)* | **Type your GCP project id** (e.g. `my-project-123456`). Needed for anything touching Google APIs. |
+| **Path to OAuth client credentials JSON** | *(empty)* | Path to your Desktop OAuth client file (e.g. `~/.config/gas-fakes/client.json`). **Required for Workspace scopes** (Sheets/Drive/Gmail) — see [Authentication](#authentication-the-real-setup). Leave empty only if your script touches no Google services. |
+| *(quiet mode / logging destination / storage type)* | defaults | Enter through these. |
+| **Save this configuration to .env?** | Yes | Enter to write the `.env`. |
+
+The wizard's last question offers to install "gas-fakes skills for Gemini CLI" — **answer No** unless you specifically use Gemini CLI; it's unrelated to this extension.
+
+Because the extension passes `--auth-type adc`, the wizard **skips** the DWD-vs-ADC question and configures ADC directly. (For Domain-Wide Delegation, see [Path B](#path-b--enterprise-workspace-locked-down-gcp-console).)
+
+When the wizard finishes and the `.env` is written, the extension detects the install and pops a "project initialized" notification; the 🛠 button is replaced by the ▶ 🐞 🌐 buttons.
+
+### After init
+
+- **No Google services?** You're done — **Run Function** will work immediately.
+- **Touches Sheets/Drive/etc.?** Continue to [Authentication](#authentication-the-real-setup) to create the OAuth client (if you skipped it above) and **Sign In (ADC)**.
 
 ---
 
@@ -76,16 +127,9 @@ This works for `@gmail.com` accounts and for any project where you can create a 
 
 #### Per-project setup
 
-1. **Init**: `Cmd+Shift+P → GAS Fakes: Init in This Project`. This installs `@mcpher/gas-fakes` and creates `.env` configured for ADC auth.
-2. **Edit `.env`** in the project root:
-   ```ini
-   AUTH_TYPE="adc"
-   GOOGLE_CLOUD_PROJECT="your-gcp-project-id"
-   CLIENT_CREDENTIAL_FILE="/Users/you/.config/gas-fakes/client.json"
-   EXTRA_SCOPES="https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
-   ```
-   (`EXTRA_SCOPES` should match your code's needs. The list above covers Sheets + Drive.)
-3. **Add `oauthScopes` to `appsscript.json`**:
+<a name="per-project-setup"></a>
+
+1. **Add `oauthScopes` to `appsscript.json`** *(do this first — the init wizard reads it)*:
    ```json
    {
      "oauthScopes": [
@@ -97,8 +141,16 @@ This works for `@gmail.com` accounts and for any project where you can create a 
      ]
    }
    ```
-4. **Sign in**: `Cmd+Shift+P → GAS Fakes: Sign In (ADC)`. The extension reads your manifest scopes and `CLIENT_CREDENTIAL_FILE`, then runs `gcloud auth application-default login --scopes=… --client-id-file=…`. The browser consent screen will ask for Sheets/Drive access.
-5. **Run** or **Serve Web App**.
+2. **Init**: `Cmd+Shift+P → GAS Fakes: Init in This Project`. This installs `@mcpher/gas-fakes` and launches the [setup wizard](#the-gas-fakes-init-wizard). When it asks for your **GCP Project ID** and **OAuth client credentials JSON**, supply them. The wizard auto-fills `EXTRA_SCOPES` from the manifest scopes you added in step 1, so you normally don't edit `.env` by hand. The result is a `.env` like:
+   ```ini
+   AUTH_TYPE="adc"
+   GOOGLE_CLOUD_PROJECT="your-gcp-project-id"
+   CLIENT_CREDENTIAL_FILE="/Users/you/.config/gas-fakes/client.json"
+   EXTRA_SCOPES="https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+   ```
+   (If you need to adjust scopes later, edit `EXTRA_SCOPES` in `.env` to match your code's needs and re-run Sign In.)
+3. **Sign in**: `Cmd+Shift+P → GAS Fakes: Sign In (ADC)`. The extension reads your manifest scopes and `CLIENT_CREDENTIAL_FILE`, then runs `gcloud auth application-default login --scopes=… --client-id-file=…`. The browser consent screen will ask for Sheets/Drive access.
+4. **Run** or **Serve Web App**.
 
 #### Adding more test users (if "App is being tested" error)
 
@@ -125,12 +177,13 @@ Once auth is set up:
 
 | Action | How |
 |---|---|
+| Initialize a project | Click **🛠** in the editor title bar (only shown when not yet initialized), or **GAS Fakes: Init in This Project** in the palette |
 | Run a function | Click **▶** in the editor title bar, the **▶ Run** CodeLens above the function, or **GAS Fakes: Run Function** in the palette |
 | Debug a function | Click **🐞** title bar / CodeLens — set breakpoints in `.gs` first |
 | Serve a web app | Click **🌐** title bar — opens `http://127.0.0.1:<port>/` in your browser, streams logs to the GAS Fakes output channel |
 | Stop the server | Click **⏹** (only visible while serving) |
 
-The editor title-bar buttons appear on any `.gs`/`.js` file in a clasp project. The CodeLens lenses appear above each zero-arg top-level function.
+The editor title-bar buttons appear on any `.gs`/`.js` file in a clasp project. Before the project is initialized you'll see **🛠**; once `@mcpher/gas-fakes` is installed it's replaced by **▶ 🐞 🌐**. If you click ▶/🐞/🌐 on an uninitialized project, the extension offers to run init first rather than failing. The CodeLens lenses appear above each zero-arg top-level function.
 
 ---
 
@@ -201,7 +254,13 @@ The local server replicates Apps Script's runtime architecture, not just its API
 The extension looks for `.clasp.json` from the active editor up to the workspace root. If you opened a single file instead of a folder, open the project directory.
 
 ### "cannot find @mcpher/gas-fakes in this project"
-Run **GAS Fakes: Init in This Project**. The extension installs `@mcpher/gas-fakes` from a private cache (`~/.cache/gas-fakes-npm`) so a broken `~/.npm` cache won't sink the install.
+Run **GAS Fakes: Init in This Project** (or click **🛠 Init** in the title bar). The extension installs `@mcpher/gas-fakes` from a private cache (`~/.cache/gas-fakes-npm`) so a broken `~/.npm` cache won't sink the install.
+
+### Init "hangs" / nothing happens after npm install
+That's the **interactive wizard** waiting for you. After `npm install` finishes, `npx gas-fakes init` asks a series of questions in the terminal and won't proceed until you answer. Click into the terminal and press **Enter** through the prompts (typing your GCP Project ID and OAuth client path where asked), then answer **Yes** to "Save this configuration". See [The `gas-fakes init` wizard](#the-gas-fakes-init-wizard). Until you finish the wizard, no `.env` is written and Sign In has nothing to read.
+
+### The 🛠 Init button is still there after I initialized
+The button keys off `@mcpher/gas-fakes` being present in the project's `node_modules`. If init didn't complete (wizard cancelled, or `npm install` failed), it won't switch over. Check the **GAS Fakes Init** terminal for errors and re-run init. Switching editor tabs forces a re-check.
 
 ### "Request had insufficient authentication scopes"
 The ADC token doesn't have the scopes your code needs. Three things to check:

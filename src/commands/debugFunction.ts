@@ -6,6 +6,7 @@ import {
   showClaspNotFoundError,
 } from '../projectResolver';
 import { indexFunctions } from '../functionIndexer';
+import { ensureInitialized } from './init';
 import { output } from '../output';
 
 export function registerDebugCommand(context: vscode.ExtensionContext): vscode.Disposable {
@@ -17,6 +18,7 @@ export function registerDebugCommand(context: vscode.ExtensionContext): vscode.D
         showClaspNotFoundError();
         return;
       }
+      if (!(await ensureInitialized(proj))) return;
       const sources = listSourceFiles(proj.rootDir);
       if (sources.length === 0) {
         vscode.window.showErrorMessage(`GAS Fakes: no .gs/.js sources in ${proj.rootDir}.`);

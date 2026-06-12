@@ -2,9 +2,57 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { resolveClaspProjectDeep, showClaspNotFoundError } from '../projectResolver';
+import {
+  resolveClaspProjectDeep,
+  showClaspNotFoundError,
+  isProjectInitialized,
+  ClaspProject,
+} from '../projectResolver';
 import { setupWorkspaceTypes } from '../intellisense';
+import { refreshInProject } from '../context';
 import { output } from '../output';
+
+// Pre-flight gate for Run/Debug/Serve: the runner requires @mcpher/gas-fakes
+// from the project, so an uninitialized project would only fail later with a
+// confusing module-not-found. Offer init instead of proceeding.
+export async function ensureInitialized(proj: ClaspProject): Promise<boolean> {
+  if (isProjectInitialized(proj.projectDir)) return true;
+  const choice = await vscode.window.showInformationMessage(
+    'GAS Fakes: this project is not initialized yet.',
+    {
+      modal: true,
+      detail:
+        '@mcpher/gas-fakes is not installed in this project. Initialize now? ' +
+        'This runs npm install and gas-fakes init in a terminal.',
+    },
+    'Init Now',
+  );
+  if (choice === 'Init Now') {
+    await vscode.commands.executeCommand('gasFakes.init');
+    vscode.window.showInformationMessage(
+      'GAS Fakes: initializing — when the terminal finishes, run your function again.',
+    );
+  }
+  return false;
+}
+
+// The install runs in a terminal we can't await, so poll until the package
+// lands to flip the 🛠 title-bar button off without an editor switch.
+function watchForInitCompletion(projectDir: string): void {
+  const started = Date.now();
+  const timer = setInterval(() => {
+    if (isProjectInitialized(projectDir)) {
+      clearInterval(timer);
+      refreshInProject();
+      vscode.window.showInformationMessage(
+        'GAS Fakes: project initialized — ▶ Run, 🐞 Debug and 🌐 Serve are ready. ' +
+          'If the terminal is still asking setup questions, finish those to create your .env.',
+      );
+    } else if (Date.now() - started > 10 * 60 * 1000) {
+      clearInterval(timer);
+    }
+  }, 3000);
+}
 
 export function registerInitCommand(context: vscode.ExtensionContext): vscode.Disposable {
   return vscode.commands.registerCommand('gasFakes.init', async () => {
@@ -30,6 +78,7 @@ export function registerInitCommand(context: vscode.ExtensionContext): vscode.Di
     term.show();
     term.sendText(steps.join(' && '));
     output.appendLine(`init in ${proj.projectDir}: ${steps.join(' && ')}`);
+    if (!isProjectInitialized(proj.projectDir)) watchForInitCompletion(proj.projectDir);
 
     // Also set up Apps Script IntelliSense (jsconfig + bundled GAS types).
     // Quiet: an already-configured project shouldn't nag during init.

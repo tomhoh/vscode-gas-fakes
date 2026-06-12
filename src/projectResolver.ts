@@ -82,6 +82,15 @@ export function showClaspNotFoundError(): void {
   output.show(true);
 }
 
+// "Initialized" = the init command's npm install has landed. The runner
+// requires @mcpher/gas-fakes from the project, so this is the gate for
+// Run/Debug/Serve actually working.
+export function isProjectInitialized(projectDir: string): boolean {
+  return fs.existsSync(
+    path.join(projectDir, 'node_modules', '@mcpher', 'gas-fakes', 'package.json'),
+  );
+}
+
 export function listSourceFiles(rootDir: string): string[] {
   const out: string[] = [];
   let entries: fs.Dirent[];

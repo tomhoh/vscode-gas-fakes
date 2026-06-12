@@ -6,6 +6,12 @@ This extension wires [`@mcpher/gas-fakes`](https://www.npmjs.com/package/@mcpher
 
 Built for the workflow described in [Gas-fakes, GitHub Actions, and WIF](https://ramblings.mcpher.com/gas-fakes-github-actions-wif/).
 
+[**Install from the VS Code Marketplace**](https://marketplace.visualstudio.com/items?itemName=TomHoh.vscode-gas-fakes) — or in VS Code, open Extensions (`Cmd+Shift+X`) and search **GAS Fakes**. From the command line:
+
+```bash
+code --install-extension TomHoh.vscode-gas-fakes
+```
+
 ![Editor title-bar buttons (Run · Debug · Serve · Stop) and CodeLens above each runnable function in a clasp project.](media/preview.png)
 
 ---
